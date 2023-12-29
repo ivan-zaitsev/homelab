@@ -1,0 +1,105 @@
+version: "3.9"
+
+networks:
+  media-network:
+
+services:
+  prowlarr:
+    container_name: prowlarr
+    image: linuxserver/prowlarr:develop
+    restart: unless-stopped
+    networks:
+      - media-network
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=UTC
+    volumes:
+      - ./data/prowlarr-config:/config
+    ports:
+      - 9696:9696/tcp
+
+  radarr:
+    container_name: radarr
+    image: linuxserver/radarr:develop
+    restart: unless-stopped
+    networks:
+      - media-network
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=UTC
+    volumes:
+      - ./data/radarr-config:/config
+      - /mnt/storage/downloads:/downloads
+      - /mnt/storage/content:/content
+    ports:
+      - 7878:7878/tcp
+
+  sonarr:
+    image: linuxserver/sonarr:develop
+    container_name: sonarr
+    restart: unless-stopped
+    networks:
+      - media-network
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=UTC
+    volumes:
+      - ./data/sonarr-config:/config
+      - /mnt/storage/downloads:/downloads
+      - /mnt/storage/content:/content
+    ports:
+      - 8989:8989/tcp
+
+  qbittorrent:
+    container_name: qbittorrent
+    image: linuxserver/qbittorrent:latest
+    restart: unless-stopped
+    networks:
+      - media-network
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=UTC
+      - WEBUI_PORT=9090
+    volumes:
+      - ./data/qbittorrent-config:/config
+      - /mnt/storage/downloads:/downloads
+    ports:
+      - 9090:9090/tcp
+      - 6881:6881/tcp
+      - 6881:6881/udp
+
+  jellyfin:
+    image: linuxserver/jellyfin:latest
+    container_name: jellyfin
+    restart: unless-stopped
+    networks:
+      - media-network
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=UTC
+    devices:
+      - /dev/dri:/dev/dri
+    volumes:
+      - ./data/jellyfin-config/custom-init:/custom-cont-init.d:ro
+      - ./data/jellyfin-config:/config
+      - /mnt/storage/content:/content
+    ports:
+      - 8096:8096/tcp
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    restart: unless-stopped
+    networks:
+      - media-network
+    environment:
+      - TZ=UTC
+    volumes:
+      - ./data/jellyseerr-config:/app/config
+    ports:
+      - 5055:5055

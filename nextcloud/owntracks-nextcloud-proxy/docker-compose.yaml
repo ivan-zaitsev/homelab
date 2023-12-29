@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  owntracks-nextcloud-proxy:
+    container_name: owntracks-nextcloud-proxy
+    image: owntracks-nextcloud-proxy:latest
+    restart: always
+    environment:
+      - TARGET_HOST=https://nextcloud.${DUCKDNS_DOMAIN}.duckdns.org
+    ports:
+      - 8000:8000/tcp
