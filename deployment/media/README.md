@@ -1,4 +1,4 @@
-# media-server
+# media
 
 ## Install additional plugins
 Add additional repository to Jellyfin

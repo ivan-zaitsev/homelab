@@ -1,0 +1,42 @@
+version: "3.9"
+
+networks:
+  notification-network:
+
+services:
+  caddy:
+    container_name: caddy
+    image: caddy-custom:latest
+    network_mode: "host"
+    restart: unless-stopped
+    volumes:
+       - ./reverse-proxy/Caddyfile:/etc/caddy/Caddyfile
+       - ./reverse-proxy/certs:/certs
+       - ./reverse-proxy/config:/config
+       - ./reverse-proxy/data:/data
+       - ./reverse-proxy/sites:/srv
+
+  ntfy:
+    container_name: ntfy
+    image: binwiederhier/ntfy
+    restart: unless-stopped
+    networks:
+      - notification-network
+    command:
+      - serve
+    volumes:
+      - ./notification/ntfy/cache:/var/cache/ntfy
+      - ./notification/ntfy/data:/etc/ntfy
+    ports:
+      - 8080:80/tcp
+
+  mailrise:
+    container_name: mailrise
+    image: yoryan/mailrise:latest
+    restart: unless-stopped
+    networks:
+      - notification-network
+    volumes:
+      - ./notification/mailrise/mailrise.conf:/etc/mailrise.conf
+    ports:
+      - 8025:8025/tcp
