@@ -2,19 +2,46 @@ version: "3.9"
 
 networks:
   media-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.1/16
+          gateway: 172.20.0.1
 
 services:
+  wireguard:
+    container_name: wireguard
+    image: linuxserver/wireguard:latest
+    restart: unless-stopped
+    networks:
+      media-network:
+        ipv4_address: 172.20.0.10
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=UTC
+    volumes:
+      - ./data/wireguard-config:/config
+
   prowlarr:
     container_name: prowlarr
     image: linuxserver/prowlarr:develop
     restart: unless-stopped
     networks:
       - media-network
+    cap_add:
+      - NET_ADMIN
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=UTC
+    command: /bin/bash -c '/bin/chmod +x /network-setup.sh && /network-setup.sh'
     volumes:
+      - ./data/wireguard-config/network-setup.sh:/network-setup.sh
       - ./data/prowlarr-config:/config
     ports:
       - 9696:9696/tcp
@@ -29,7 +56,9 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=UTC
+    command: /bin/bash -c '/bin/chmod +x /network-setup.sh && /network-setup.sh'
     volumes:
+      - ./data/wireguard-config/network-setup.sh:/network-setup.sh
       - ./data/radarr-config:/config
       - /mnt/storage/downloads:/downloads
       - /mnt/storage/content:/content
@@ -37,8 +66,8 @@ services:
       - 7878:7878/tcp
 
   sonarr:
-    image: linuxserver/sonarr:develop
     container_name: sonarr
+    image: linuxserver/sonarr:develop
     restart: unless-stopped
     networks:
       - media-network
@@ -46,7 +75,9 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=UTC
+    command: /bin/bash -c '/bin/chmod +x /network-setup.sh && /network-setup.sh'
     volumes:
+      - ./data/wireguard-config/network-setup.sh:/network-setup.sh
       - ./data/sonarr-config:/config
       - /mnt/storage/downloads:/downloads
       - /mnt/storage/content:/content
@@ -64,7 +95,9 @@ services:
       - PGID=1000
       - TZ=UTC
       - WEBUI_PORT=9090
+    command: /bin/bash -c '/bin/chmod +x /network-setup.sh && /network-setup.sh'
     volumes:
+      - ./data/wireguard-config/network-setup.sh:/network-setup.sh
       - ./data/qbittorrent-config:/config
       - /mnt/storage/downloads:/downloads
     ports:
@@ -72,9 +105,24 @@ services:
       - 6881:6881/tcp
       - 6881:6881/udp
 
+  jellyseerr:
+    container_name: jellyseerr
+    image: fallenbagel/jellyseerr:latest
+    restart: unless-stopped
+    networks:
+      - media-network
+    environment:
+      - TZ=UTC
+    command: /bin/bash -c '/bin/chmod +x /network-setup.sh && /network-setup.sh'
+    volumes:
+      - ./data/wireguard-config/network-setup.sh:/network-setup.sh
+      - ./data/jellyseerr-config:/app/config
+    ports:
+      - 5055:5055/tcp
+
   jellyfin:
-    image: linuxserver/jellyfin:latest
     container_name: jellyfin
+    image: linuxserver/jellyfin:latest
     restart: unless-stopped
     networks:
       - media-network
@@ -90,16 +138,3 @@ services:
       - /mnt/storage/content:/content
     ports:
       - 8096:8096/tcp
-
-  jellyseerr:
-    image: fallenbagel/jellyseerr:latest
-    container_name: jellyseerr
-    restart: unless-stopped
-    networks:
-      - media-network
-    environment:
-      - TZ=UTC
-    volumes:
-      - ./data/jellyseerr-config:/app/config
-    ports:
-      - 5055:5055

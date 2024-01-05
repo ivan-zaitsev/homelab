@@ -6,6 +6,6 @@ services:
     image: owntracks-nextcloud-proxy:latest
     restart: always
     environment:
-      - TARGET_HOST=https://nextcloud.${DUCKDNS_DOMAIN}.duckdns.org
+      - TARGET_HOST=https://nextcloud.${DUCKDNS_SUBDOMAIN}.duckdns.org
     ports:
       - 8000:8000/tcp
