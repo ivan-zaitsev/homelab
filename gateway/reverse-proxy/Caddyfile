@@ -1,0 +1,63 @@
+*.home.lan {
+    tls /certs/home-certificate.pem /certs/home-private-key.pem {
+        ca_root /certs/home-ca-certificate.pem
+    }
+}
+
+https://prowlarr.home.lan:443 {
+    reverse_proxy 10.10.10.11:9696
+}
+
+http://radarr.home.lan:80 {
+    reverse_proxy 10.10.10.11:7878
+}
+
+https://radarr.home.lan:443 {
+    reverse_proxy 10.10.10.11:7878
+}
+
+http://sonarr.home.lan:80 {
+    reverse_proxy 10.10.10.11:8989
+}
+
+https://sonarr.home.lan:443 {
+    reverse_proxy 10.10.10.11:8989
+}
+
+https://torrent.home.lan:443 {
+    reverse_proxy 10.10.10.11:9090
+}
+
+https://jellyseerr.home.lan:443 {
+    reverse_proxy 10.10.10.11:5055
+}
+
+https://jellyfin.home.lan:443 {
+    reverse_proxy 10.10.10.11:8096
+}
+
+*.{env.DUCKDNS_SUBDOMAIN}.duckdns.org {
+    tls {
+        dns duckdns {env.DUCKDNS_TOKEN}
+    }
+}
+
+https://ntfy.{env.DUCKDNS_SUBDOMAIN}.duckdns.org:443 {
+    reverse_proxy 10.10.10.10:8080
+}
+
+https://jellyseerr.{env.DUCKDNS_SUBDOMAIN}.duckdns.org:443 {
+    reverse_proxy 10.10.10.11:5055
+}
+
+https://jellyfin.{env.DUCKDNS_SUBDOMAIN}.duckdns.org:443 {
+    reverse_proxy 10.10.10.11:8096
+}
+
+https://nextcloud.{env.DUCKDNS_SUBDOMAIN}.duckdns.org:443 {
+    reverse_proxy 10.10.10.12:11000
+}
+
+https://owntracks.{env.DUCKDNS_SUBDOMAIN}.duckdns.org:443 {
+    reverse_proxy 10.10.10.12:8000
+}

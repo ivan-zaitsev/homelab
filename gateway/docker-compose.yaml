@@ -9,9 +9,8 @@ services:
     image: caddy-custom:latest
     restart: unless-stopped
     network_mode: "host"
-    command: caddy run --config /etc/caddy/caddy.json
     volumes:
-       - ./reverse-proxy/caddy.json:/etc/caddy/caddy.json
+       - ./reverse-proxy/Caddyfile:/etc/caddy/Caddyfile
        - ./reverse-proxy/certs:/certs
        - ./reverse-proxy/config:/config
        - ./reverse-proxy/data:/data
